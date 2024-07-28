@@ -92,6 +92,7 @@ static int b_commandtable_added = 0;
 
 struct compass {
     int width;	/*!< Width of the compass in pixels */
+    int destination_dir_on; /*!< Enable or disable the destination direction arrow*/
     struct color destination_dir_color;	/*!< Color definition of the destination direction arrow */
     struct color north_color;	/*!< Color definition of north handle of the compass */
     struct graphics_gc *destination_dir_gc;	/*!< graphics_gc context used to draw the destination direction arrow */
@@ -1484,7 +1485,8 @@ static void osd_compass_draw(struct osd_priv_common *opc, struct navit *nav,
                          -vdir); /* Draw a compass */
         }
 
-        if (navit_get_attr(nav, attr_destination, &destination_attr, NULL)
+        if (this->destination_dir_on
+                && navit_get_attr(nav, attr_destination, &destination_attr, NULL)
                 && vehicle_get_attr(v, attr_position_coord_geo,&position_attr, NULL)) {
             pro = destination_attr.u.pcoord->pro;
             transform_from_geo(pro, position_attr.u.coord_geo, &c1);
@@ -1512,9 +1514,11 @@ static void osd_compass_init(struct osd_priv_common *opc, struct navit *nav) {
 
     osd_set_std_graphic(nav, &opc->osd_item, (struct osd_priv *)opc);
 
-    this->destination_dir_gc = graphics_gc_new(opc->osd_item.gr);
-    graphics_gc_set_foreground(this->destination_dir_gc, &this->destination_dir_color);
-    graphics_gc_set_linewidth(this->destination_dir_gc, this->width);
+    if (this->destination_dir_on) {
+        this->destination_dir_gc = graphics_gc_new(opc->osd_item.gr);
+        graphics_gc_set_foreground(this->destination_dir_gc, &this->destination_dir_color);
+        graphics_gc_set_linewidth(this->destination_dir_gc, this->width);
+    }
 
     this->north_gc = graphics_gc_new(opc->osd_item.gr);
     graphics_gc_set_foreground(this->north_gc, &this->north_color);
@@ -1552,6 +1556,8 @@ static struct osd_priv *osd_compass_new(struct navit *nav, struct osd_methods *m
     osd_set_std_attr(attrs, &opc->osd_item, ITEM_HAS_TEXT);
     attr = attr_search(attrs, attr_width);
     this->width=attr ? attr->u.num : 2;
+    attr = attr_search(attrs, attr_destination_dir_on);
+    this->destination_dir_on=attr ? attr-u.num : 1;
     attr = attr_search(attrs, attr_destination_dir_color);
     this->destination_dir_color=attr ? *attr->u.color :
                                 green_color; /* Pick destination color from configuration, default to green if unspecified */
