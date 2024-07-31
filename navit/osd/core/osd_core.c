@@ -3753,7 +3753,8 @@ static void osd_scale_draw(struct osd_priv_common *opc, struct navit *nav, struc
     graphics_draw_mode(opc->osd_item.gr, draw_mode_begin);
     item_pos.x=0;
     item_pos.y=0;
-    graphics_draw_rectangle(opc->osd_item.gr, opc->osd_item.graphic_bg, &item_pos, opc->osd_item.w, opc->osd_item.h);
+    if (this->use_overlay)
+        graphics_draw_rectangle(opc->osd_item.gr, opc->osd_item.graphic_bg, &item_pos, opc->osd_item.w, opc->osd_item.h);
 
     scale_line_start=item_pos;
     scale_line_start.y+=opc->osd_item.h/2;
@@ -3799,8 +3800,7 @@ static void osd_scale_draw(struct osd_priv_common *opc, struct navit *nav, struc
     graphics_draw_text(opc->osd_item.gr, opc->osd_item.graphic_fg_text, opc->osd_item.graphic_fg, opc->osd_item.font, text,
                        &p[0], 0x10000, 0);
     g_free(text);
-    if (this->use_overlay)
-        graphics_draw_mode(opc->osd_item.gr, draw_mode_end);
+    graphics_draw_mode(opc->osd_item.gr, draw_mode_end);
 }
 
 static void osd_scale_init(struct osd_priv_common *opc, struct navit *nav) {
