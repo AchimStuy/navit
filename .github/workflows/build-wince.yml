@@ -1,0 +1,21 @@
+
+name: Build Navit Binarys for WinCE
+
+on: [push, pull_request]
+
+jobs:
+  build_wince:
+    runs-on: ubuntu-latest
+    container:
+        image: navit/dockerfiles:wince
+    steps:
+      - uses: actions/checkout@v1
+      - name: Prepare the WinCE build environment
+        run: |
+            bash scripts/setup_wince.sh
+      - name: Build for Windows CE
+        run: bash scripts/build_wince.sh
+      - uses: actions/upload-artifact@v1
+        with:
+          path: wince/output
+          name: WinCE Binary
