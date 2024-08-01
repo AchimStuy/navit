@@ -1463,8 +1463,9 @@ static void osd_compass_draw(struct osd_priv_common *opc, struct navit *nav,
     struct compass *this = (struct compass *)opc->data;
 
     struct point p,bbox[4];
-    struct attr attr_dir, destination_attr, position_attr, imperial_attr;
-    double dir, vdir = 0;
+    struct attr attr_vehicle_dir, attr_navit_orientation, destination_attr, position_attr, imperial_attr;
+    double dir, vehicle_direction = 0;
+    long navit_orientation = 0;
     char *buffer;
     struct coord c1, c2;
     enum projection pro;
@@ -1478,11 +1479,17 @@ static void osd_compass_draw(struct osd_priv_common *opc, struct navit *nav,
     p.y = opc->osd_item.w/2;
     graphics_draw_circle(opc->osd_item.gr,
                          opc->osd_item.graphic_fg, &p, opc->osd_item.w*5/6);
-    if (v) {
-        if (vehicle_get_attr(v, attr_position_direction, &attr_dir, NULL)) {
-            vdir = *attr_dir.u.numd;
+    if (v && navit_get_attr(nav, attr_orientation, &attr_navit_orientation, NULL)) {
+        navit_orientation = *attr_navit_orientation.u.num;
+
+        if (vehicle_get_attr(v, attr_position_direction, &attr_vehicle_dir, NULL)) {
+            vehicle_direction = *attr_vehicle_dir.u.num;
+            if (navit_orientation == -1)
+                dir = -vehicle_direction;
+            else
+                dir = navit_orientation;
             draw_compass(opc->osd_item.gr, this->north_gc, opc->osd_item.graphic_fg, &p, opc->osd_item.w/3,
-                         -vdir); /* Draw a compass */
+                         dir); /* Draw a compass */
         }
 
         if (this->destination_dir_on
@@ -1493,7 +1500,8 @@ static void osd_compass_draw(struct osd_priv_common *opc, struct navit *nav,
             c2.x = destination_attr.u.pcoord->x;
             c2.y = destination_attr.u.pcoord->y;
             dir = atan2(c2.x - c1.x, c2.y - c1.y) * 180.0 / M_PI;
-            dir -= vdir;
+            if (navit_orientation == -1)
+                dir -= vehicle_direction;
             draw_handle(opc->osd_item.gr, this->destination_dir_gc, &p, opc->osd_item.w/3,
                         dir); /* Draw the green arrow pointing to the destination */
             buffer=format_distance(transform_distance(pro, &c1, &c2),"",imperial);
