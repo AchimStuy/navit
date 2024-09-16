@@ -3841,7 +3841,8 @@ static struct osd_priv *osd_scale_new(struct navit *nav, struct osd_methods *met
     opc->osd_item.meth.draw = osd_draw_cast(osd_scale_draw);
     meth->set_attr = set_std_osd_attr;
 
-    osd_set_std_attr(attrs, &opc->osd_item, TRANSPARENT_BG | ITEM_HAS_TEXT);
+    osd_set_std_attr(attrs, &opc->osd_item,
+        this->use_overlay ? TRANSPARENT_BG | ITEM_HAS_TEXT : (TRANSPARENT_BG | ITEM_HAS_TEXT | DISABLE_OVERLAY));
 
     navit_add_callback(nav, this->navit_init_cb = callback_new_attr_1(callback_cast(osd_scale_init), attr_graphics_ready,
                        opc));
