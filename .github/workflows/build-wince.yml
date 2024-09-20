@@ -7,7 +7,7 @@ jobs:
   build_wince:
     runs-on: ubuntu-latest
     container:
-        image: navit/dockerfiles:wince
+        image: ghcr.io/achimstuy/navit-wince:main
     steps:
       - uses: actions/checkout@v1
       - name: Prepare the WinCE build environment
