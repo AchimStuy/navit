@@ -15,7 +15,7 @@ jobs:
             bash scripts/setup_wince.sh
       - name: Build for Windows CE
         run: bash scripts/build_wince.sh
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         with:
           path: wince/output
           name: WinCE Binary
